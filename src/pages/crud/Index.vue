@@ -1,17 +1,21 @@
 <script setup lang="ts">
-import CrudLayouts from "@/layouts/CrudLayouts.vue";
+import { useTableStore } from "@/stores/useTable";
+import Search from "./components/Search.vue";
+import Table from "./components/Table.vue";
+
+const tableStore = useTableStore();
+
+onMounted(async () => {
+  await tableStore.getTableData();
+});
 </script>
 
 <template>
-  <CrudLayouts>
-    <template #header>
-      <div>header</div>
-    </template>
-    <template #aside>
-      <div>aside</div>
-    </template>
-    <template #main>
-      <div>main</div>
-    </template>
-  </CrudLayouts>
+  <div class="w-full h-full flex flex-col gap-4">
+    <Search />
+    <div v-if="tableStore.loading || !tableStore.tableRef">正在加载...</div>
+    <Table v-else :data="tableStore.tableRef" />
+  </div>
 </template>
+
+<style scoped></style>
