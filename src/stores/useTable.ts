@@ -3,7 +3,10 @@ import { ElMessage } from "element-plus";
 
 export const useTableStore = defineStore("table", () => {
   const tableRef = ref<TableItem[] | undefined>();
+  const editing = ref<TableItem | undefined>();
+  const isEditing = computed(() => !!editing.value);
   const loading = ref(false);
+  const visible = ref(false);
 
   const getTableData = async () => {
     loading.value = true;
@@ -54,18 +57,33 @@ export const useTableStore = defineStore("table", () => {
   };
 
   const updataItem = (item: TableItem) => {
-    if (!tableRef.value) {
-      ElMessage.error("没有数据");
-      return;
-    }
-    try {
-      const idx = tableRef.value.findIndex((t) => t.id === item.id);
-      if (idx > -1) tableRef.value[idx] = item;
-      throw new Error("未找到");
-    } catch (error) {
-      ElMessage.error(String(error));
+    if (!tableRef.value) return ElMessage.error("没有数据");
+    const idx = tableRef.value.findIndex((t) => t.id === item.id);
+    if (idx > -1) {
+      tableRef.value[idx] = item;
+    } else {
+      ElMessage.error("未找到该记录");
     }
   };
 
-  return { tableRef, loading, getTableData, deleteItem, addItem, updataItem };
+  const updataEditing = (item: TableItem | undefined) => {
+    editing.value = item;
+  };
+
+  const updataVisible = (v: boolean) => {
+    visible.value = v;
+  };
+  return {
+    tableRef,
+    loading,
+    isEditing,
+    visible,
+    editing,
+    updataVisible,
+    updataEditing,
+    getTableData,
+    deleteItem,
+    addItem,
+    updataItem,
+  };
 });

@@ -16,18 +16,6 @@ const config = [
 
 const tableStore = useTableStore();
 
-interface Props {
-  visible: boolean;
-  form?: TableItem;
-}
-const props = defineProps<Props>();
-
-interface Emits {
-  "update:visible": [boolean];
-}
-const emit = defineEmits<Emits>();
-const isEditing = computed(() => !!props.form);
-
 const localForm = ref<TableItem>({
   id: "",
   name: "",
@@ -35,12 +23,12 @@ const localForm = ref<TableItem>({
   address: "",
 });
 watch(
-  () => props.visible,
+  () => tableStore.visible,
   (show) => {
     if (show) {
       Object.assign(
         localForm.value,
-        props.form ?? {
+        tableStore.editing ?? {
           id: "",
           name: "",
           date: "",
@@ -52,29 +40,31 @@ watch(
   { immediate: true }
 );
 
-// const visible = defineModel<boolean>("visible");
+const handleClosed = () => {
+  Object.assign(localForm.value, {
+    id: "",
+    name: "",
+    date: "",
+    address: "",
+  });
+};
 
 const handleConfirm = () => {
-  if (isEditing.value) {
+  if (tableStore.isEditing) {
     tableStore.updataItem(localForm.value);
-    localForm.value = {
-      id: "",
-      name: "",
-      date: "",
-      address: "",
-    };
+    handleClosed();
   } else {
     tableStore.addItem(localForm.value);
   }
-
-  emit("update:visible", false);
+  tableStore.updataVisible(false);
 };
 </script>
 
 <template>
   <el-dialog
-    :model-value="visible"
-    @update:model-value="$emit('update:visible', false)"
+    :model-value="tableStore.visible"
+    @update:model-value="tableStore.updataVisible(false)"
+    @close="handleClosed"
     title="Shipping address"
   >
     <el-form :model="localForm">
@@ -85,7 +75,7 @@ const handleConfirm = () => {
         /> </el-form-item
     ></el-form>
     <template #footer>
-      <el-button @click="$emit('update:visible', false)">取消</el-button>
+      <el-button @click="tableStore.updataVisible(false)">取消</el-button>
       <el-button type="primary" @click="handleConfirm">确定</el-button>
     </template>
   </el-dialog>

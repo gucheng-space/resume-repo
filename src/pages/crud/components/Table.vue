@@ -15,10 +15,6 @@ const col = [
 ];
 
 const tableStore = useTableStore();
-
-const visible = ref(false);
-
-const editing = ref<TableItem | undefined>();
 </script>
 <template>
   <el-table class="w-full" :data="props.data">
@@ -46,9 +42,8 @@ const editing = ref<TableItem | undefined>();
           size="small"
           @click="
             () => {
-              visible = true;
-              editing = row;
-              console.log(editing);
+              tableStore.updataVisible(true);
+              tableStore.updataEditing(row);
             }
           "
           >编辑</el-button
@@ -61,11 +56,11 @@ const editing = ref<TableItem | undefined>();
     size="small"
     @click.prevent="
       () => {
-        visible = true;
-        editing = undefined;
+        tableStore.updataVisible(true);
+        tableStore.updataEditing(undefined);
       }
     "
     >添加</el-button
   >
-  <Popup v-model:visible="visible" :form="editing" />
+  <Popup />
 </template>
