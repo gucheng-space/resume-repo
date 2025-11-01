@@ -1,6 +1,7 @@
 import { createApp } from "vue";
 import { createPinia } from "pinia";
 
+import "@/assets/css/main.scss";
 // unocss
 import "virtual:uno.css";
 

@@ -1,89 +1,44 @@
+import { tableApi } from "@/api";
+import type { TableListParams } from "@/api/table.api";
 import type { TableItem } from "@/types/crud";
 import { ElMessage } from "element-plus";
 
 export const useTableStore = defineStore("table", () => {
-  const tableRef = ref<TableItem[] | undefined>();
-  const editing = ref<TableItem | undefined>();
-  const isEditing = computed(() => !!editing.value);
+  const items = ref<TableItem[]>([]);
   const loading = ref(false);
-  const visible = ref(false);
+  const pager = reactive({ page: 1, size: 10, total: 0 });
 
-  const getTableData = async () => {
+  async function loadTable(params?: TableListParams) {
     loading.value = true;
     try {
       await new Promise((r) => setTimeout(r, 500));
-      const data = [
-        {
-          id: "0",
-          date: "2016-05-03",
-          name: "Tom",
-          address: "No. 189, Grove St, Los Angeles",
-        },
-        {
-          id: "1",
-          date: "2016-05-02",
-          name: "Tom",
-          address: "No. 189, Grove St, Los Angeles",
-        },
-        {
-          id: "2",
-          date: "2016-05-04",
-          name: "Tom",
-          address: "No. 189, Grove St, Los Angeles",
-        },
-        {
-          id: "3",
-          date: "2016-05-01",
-          name: "Tom",
-          address: "No. 189, Grove St, Los Angeles",
-        },
-      ];
-      tableRef.value = data;
+      const { data } = await tableApi.getTableList({ ...pager, ...params });
+      if (data) items.value = data;
     } finally {
       loading.value = false;
     }
-  };
+  }
 
-  const deleteItem = (index: number) => {
-    tableRef.value?.splice(index, 1);
-  };
+  async function remove(id: string) {
+    const { data } = await tableApi.deleteTableItem(id);
+    items.value = data;
+    ElMessage.success("已删除");
+    // await loadTable();
+  }
 
-  const addItem = (item: TableItem) => {
-    try {
-      tableRef.value?.unshift(item);
-    } catch (error) {
-      ElMessage.error(String(error));
-    }
-  };
+  async function add(dto: TableItem) {
+    const { data } = await tableApi.addTableItem(dto);
+    items.value = data;
+    ElMessage.success("已添加");
+    // await loadTable();
+  }
 
-  const updataItem = (item: TableItem) => {
-    if (!tableRef.value) return ElMessage.error("没有数据");
-    const idx = tableRef.value.findIndex((t) => t.id === item.id);
-    if (idx > -1) {
-      tableRef.value[idx] = item;
-    } else {
-      ElMessage.error("未找到该记录");
-    }
-  };
+  async function update(dto: TableItem) {
+    const { data } = await tableApi.updateTableItem(dto);
+    items.value = data;
+    ElMessage.success("已更新");
+    // await loadTable();
+  }
 
-  const updataEditing = (item: TableItem | undefined) => {
-    editing.value = item;
-  };
-
-  const updataVisible = (v: boolean) => {
-    visible.value = v;
-  };
-  return {
-    tableRef,
-    loading,
-    isEditing,
-    visible,
-    editing,
-    updataVisible,
-    updataEditing,
-    getTableData,
-    deleteItem,
-    addItem,
-    updataItem,
-  };
+  return { items, loading, pager, loadTable, remove, add, update };
 });
