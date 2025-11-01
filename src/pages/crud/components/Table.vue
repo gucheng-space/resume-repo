@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useTableStore } from "@/stores/useTable";
 import type { TableItem } from "@/types/crud";
+import Popup from "./Popup.vue";
 
 interface Props {
   data: TableItem[];
@@ -14,6 +15,10 @@ const col = [
 ];
 
 const tableStore = useTableStore();
+
+const visible = ref(false);
+
+const editing = ref<TableItem | undefined>();
 </script>
 <template>
   <el-table class="w-full" :data="props.data">
@@ -26,17 +31,41 @@ const tableStore = useTableStore();
       :fixed="v.fixed"
     />
     <el-table-column fixed="right" label="Operations" min-width="120">
-      <template #default="scope">
+      <template #default="{ $index, row }">
         <el-button
           link
           type="primary"
           size="small"
-          @click.prevent="() => tableStore.deleteItem(scope.$index)"
+          @click.prevent="tableStore.deleteItem($index)"
         >
           删除
         </el-button>
-        <el-button link type="primary" size="small">编辑</el-button>
+        <el-button
+          link
+          type="primary"
+          size="small"
+          @click="
+            () => {
+              visible = true;
+              editing = row;
+              console.log(editing);
+            }
+          "
+          >编辑</el-button
+        >
       </template>
     </el-table-column>
   </el-table>
+  <el-button
+    type="primary"
+    size="small"
+    @click.prevent="
+      () => {
+        visible = true;
+        editing = undefined;
+      }
+    "
+    >添加</el-button
+  >
+  <Popup v-model:visible="visible" :form="editing" />
 </template>

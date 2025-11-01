@@ -42,15 +42,30 @@ export const useTableStore = defineStore("table", () => {
   };
 
   const deleteItem = (index: number) => {
+    tableRef.value?.splice(index, 1);
+  };
+
+  const addItem = (item: TableItem) => {
+    try {
+      tableRef.value?.unshift(item);
+    } catch (error) {
+      ElMessage.error(String(error));
+    }
+  };
+
+  const updataItem = (item: TableItem) => {
     if (!tableRef.value) {
       ElMessage.error("没有数据");
       return;
     }
-    console.log(index);
-
-    // const idx = tableRef.value.findIndex((t) => t.id === id);
-    if (index) tableRef.value?.splice(index, 1);
+    try {
+      const idx = tableRef.value.findIndex((t) => t.id === item.id);
+      if (idx > -1) tableRef.value[idx] = item;
+      throw new Error("未找到");
+    } catch (error) {
+      ElMessage.error(String(error));
+    }
   };
 
-  return { tableRef, loading, getTableData, deleteItem };
+  return { tableRef, loading, getTableData, deleteItem, addItem, updataItem };
 });
