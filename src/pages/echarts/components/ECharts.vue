@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { EChartsCoreOption, ECharts } from "echarts/core";
-import { echarts } from "@/plugins";
+import { loadEcharts } from "@/plugins";
 
 interface Props {
   options: EChartsCoreOption | null;
@@ -29,8 +29,9 @@ function setOption(opt: EChartsCoreOption, notMerge: boolean = false) {
   chart?.setOption(opt, { notMerge });
 }
 
-function init() {
+async function init() {
   if (!el.value) return;
+  const echarts = await loadEcharts();
   chart = echarts.init(el.value);
   if (props.options) setOption(props.options);
   if (props.autoResize) {

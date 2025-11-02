@@ -1,1 +1,1 @@
-export { default as echarts } from "./echarts";
+export { loadEcharts } from "./echarts";

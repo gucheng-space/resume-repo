@@ -31,4 +31,14 @@ export default defineConfig({
       "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
   },
+  build: {
+    rolldownOptions: {
+      output: {
+        manualChunks(id: string) {
+          if (id.includes("element-plus")) return "element-plus";
+          if (id.includes("echarts")) return "echarts";
+        },
+      },
+    },
+  },
 });
