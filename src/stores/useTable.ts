@@ -1,6 +1,7 @@
 import { tableApi } from "@/api";
 import type { TableListParams } from "@/api/table.api";
 import type { TableItem } from "@/types/crud";
+import { wait } from "@/utils";
 import { ElMessage } from "element-plus";
 
 export const useTableStore = defineStore("table", () => {
@@ -11,7 +12,7 @@ export const useTableStore = defineStore("table", () => {
   async function loadTable(params?: TableListParams) {
     loading.value = true;
     try {
-      await new Promise((r) => setTimeout(r, 500));
+      await wait();
       const { data } = await tableApi.getTableList({ ...pager, ...params });
       if (data) items.value = data;
     } finally {
